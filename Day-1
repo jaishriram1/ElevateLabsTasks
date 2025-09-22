@@ -1,0 +1,87 @@
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+/**
+ * A simple console-based calculator that performs basic arithmetic operations.
+ * The calculator runs in a continuous loop until the user chooses to exit.
+ */
+public class Calculator {
+    public static double add(double num1, double num2) {
+        return num1 + num2;
+    }
+
+    public static double subtract(double num1, double num2) {
+        return num1 - num2;
+    }
+
+    public static double multiply(double num1, double num2) {
+        return num1 * num2;
+    }
+    public static double divide(double num1, double num2) {
+        if (num2 == 0) {
+            throw new IllegalArgumentException("Cannot divide by zero.");
+        }
+        return num1 / num2;
+    }
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("--- Java Console Calculator 🚀 ---");
+
+        while (true) {
+            System.out.println("\nSelect an operation:");
+            System.out.println("  +  Addition");
+            System.out.println("  -  Subtraction");
+            System.out.println("  * Multiplication");
+            System.out.println("  /  Division");
+            System.out.println("  e  Exit");
+            System.out.print("Enter your choice: ");
+
+            String choice = scanner.next();
+
+            // Exit the program
+            if (choice.equalsIgnoreCase("e")) {
+                System.out.println("Exiting calculator. Goodbye! 👋");
+                break;
+            }
+
+            try {
+                System.out.print("Enter the first number: ");
+                double num1 = scanner.nextDouble();
+                System.out.print("Enter the second number: ");
+                double num2 = scanner.nextDouble();
+
+                double result;
+                
+                // Perform the selected operation
+                switch (choice) {
+                    case "+":
+                        result = add(num1, num2);
+                        System.out.printf("Result: %.2f + %.2f = %.2f\n", num1, num2, result);
+                        break;
+                    case "-":
+                        result = subtract(num1, num2);
+                        System.out.printf("Result: %.2f - %.2f = %.2f\n", num1, num2, result);
+                        break;
+                    case "*":
+                        result = multiply(num1, num2);
+                        System.out.printf("Result: %.2f * %.2f = %.2f\n", num1, num2, result);
+                        break;
+                    case "/":
+                        try {
+                            result = divide(num1, num2);
+                            System.out.printf("Result: %.2f / %.2f = %.2f\n", num1, num2, result);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Error: " + e.getMessage());
+                        }
+                        break;
+                    default:
+                        System.out.println("Invalid operation. Please choose from +, -, *, /, or e.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Invalid input. Please enter valid numbers.");
+                scanner.nextLine(); // Clear the invalid input from the scanner's buffer
+            }
+        }
+        scanner.close();
+    }
+}
