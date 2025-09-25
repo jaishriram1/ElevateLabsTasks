@@ -1,0 +1,205 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class LibraryManagementSystem {
+
+    // --- 1. CLASS: Book ---
+    /**
+     * Represents a book entity with attributes and status (issued/available).
+     */
+    static class Book {
+        public String bookId;
+        public String title;
+        public String author;
+        public boolean isIssued;
+        public String issuedToUserId;
+
+        public Book(String id, String t, String a) {
+            this.bookId = id;
+            this.title = t;
+            this.author = a;
+            this.isIssued = false;
+            this.issuedToUserId = null;
+        }
+
+        public void setIssued(boolean status, String userId) {
+            this.isIssued = status;
+            this.issuedToUserId = status ? userId : null;
+        }
+
+        @Override
+        public String toString() {
+            String statusText = this.isIssued ? "ISSUED (User: " + this.issuedToUserId + ")" : "Available";
+            return "ID: " + this.bookId + " | Title: " + this.title + " | Author: " + this.author + " | Status: " + statusText;
+        }
+    }
+
+    // --- 2. CLASS: User ---
+    /**
+     * Represents a user/member entity.
+     */
+    static class User {
+        public String userId;
+        public String name;
+
+        public User(String id, String n) {
+            this.userId = id;
+            this.name = n;
+        }
+    }
+
+    // --- 3. CLASS: Library (Central Management) ---
+    /**
+     * Manages the book and user collections and implements core library operations.
+     */
+    static class Library {
+        public ArrayList<Book> bookCollection;
+        public ArrayList<User> userRecords;
+
+        public Library() {
+            bookCollection = new ArrayList<>();
+            userRecords = new ArrayList<>();
+        }
+
+        // Helper method to find a Book object by its ID.
+        public Book findBook(String bookId) {
+            for (Book book : bookCollection) {
+                if (book.bookId.equalsIgnoreCase(bookId)) {
+                    return book;
+                }
+            }
+            return null;
+        }
+
+        // Helper method to find a User object by their ID.
+        public User findUser(String userId) {
+            for (User user : userRecords) {
+                if (user.userId.equalsIgnoreCase(userId)) {
+                    return user;
+                }
+            }
+            return null;
+        }
+
+        // --- Core Feature: Issue Book ---
+        public void issueBook(String bookId, String userId) {
+            Book book = findBook(bookId);
+            User user = findUser(userId);
+
+            if (book == null) {
+                System.out.println("Error: Book ID " + bookId + " not found.");
+                return;
+            }
+            if (user == null) {
+                System.out.println("Error: User ID " + userId + " not registered.");
+                return;
+            }
+            if (book.isIssued) {
+                System.out.println("Error: Book '" + book.title + "' is already issued to User " + book.issuedToUserId + ".");
+                return;
+            }
+
+            // Action: Issue the book
+            book.setIssued(true, userId);
+            System.out.println("Success! Book '" + book.title + "' issued to User " + user.name + ".");
+        }
+
+        // --- Core Feature: Return Book ---
+        public void returnBook(String bookId) {
+            Book book = findBook(bookId);
+
+            if (book == null) {
+                System.out.println("Error: Book ID " + bookId + " not found.");
+                return;
+            }
+            if (!book.isIssued) {
+                System.out.println("Error: Book '" + book.title + "' was not currently issued.");
+                return;
+            }
+
+            // Action: Return the book
+            String returnedBy = book.issuedToUserId;
+            book.setIssued(false, null);
+            System.out.println("Success! Book '" + book.title + "' returned by User " + returnedBy + ".");
+        }
+
+        // --- Display ---
+        public void displayAllBooks() {
+            System.out.println("\n--- Library Collection ---");
+            if (bookCollection.isEmpty()) {
+                System.out.println("No books in the library.");
+                return;
+            }
+            for (Book book : bookCollection) {
+                System.out.println(book);
+            }
+            System.out.println("--------------------------");
+        }
+        
+        // --- Setup Method ---
+        public void setupInitialData() {
+            this.bookCollection.add(new Book("B001", "The Java Handbook", "J. Gosling"));
+            this.bookCollection.add(new Book("B002", "OOP Mastery", "A. Class"));
+            this.bookCollection.add(new Book("B003", "Data Structures", "E. Struct"));
+            this.userRecords.add(new User("U101", "Alice"));
+            this.userRecords.add(new User("U102", "Bob"));
+        }
+    }
+
+    // =========================================================================
+    // MAIN METHOD (Program Entry Point)
+    // =========================================================================
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Library library = new Library();
+
+        System.out.println("--- Initializing Library Data ---");
+        library.setupInitialData();
+        System.out.println("Initialization complete.\n");
+
+        int choice;
+        do {
+            System.out.println("\n--- LIBRARY MAIN MENU ---");
+            System.out.println("1. Display All Books");
+            System.out.println("2. Issue Book");
+            System.out.println("3. Return Book");
+            System.out.println("4. Exit");
+            System.out.print("Enter choice: ");
+
+            try {
+                choice = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
+
+                switch (choice) {
+                    case 1:
+                        library.displayAllBooks();
+                        break;
+                    case 2:
+                        System.out.print("Enter Book ID to issue: ");
+                        String issueBookId = scanner.nextLine();
+                        System.out.print("Enter User ID: ");
+                        String issueUserId = scanner.nextLine();
+                        library.issueBook(issueBookId, issueUserId);
+                        break;
+                    case 3:
+                        System.out.print("Enter Book ID to return: ");
+                        String returnBookId = scanner.nextLine();
+                        // Note: User verification is typically required, but simplified here.
+                        library.returnBook(returnBookId); 
+                        break;
+                    case 4:
+                        System.out.println("System shutting down. Goodbye!");
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please enter a number between 1 and 4.");
+                }
+            } catch (java.util.InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.nextLine(); // Clear the buffer
+                choice = 0;
+            }
+
+        } while (choice != 4);
+        scanner.close();
+    }
+}
