@@ -1,0 +1,110 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class TodoAppGUI extends JFrame {
+
+    // Components required by the Mini Guide
+    private JTextField taskInputField;
+    private JButton addButton;
+    private JButton deleteButton;
+    private JList<String> todoList;
+
+    // Model to hold the actual tasks (data structure for JList)
+    private DefaultListModel<String> listModel;
+
+    public TodoAppGUI() {
+        // --- 1. Setup the JFrame (Main Window) ---
+        setTitle("Simple To-Do List");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(500, 400);
+        setLayout(new BorderLayout(10, 10)); // Use BorderLayout for overall structure
+
+        // --- 2. Initialize Components ---
+        listModel = new DefaultListModel<>();
+        todoList = new JList<>(listModel);
+        
+        // Add a scroll pane for the list in case of many items
+        JScrollPane scrollPane = new JScrollPane(todoList);
+        
+        taskInputField = new JTextField(20);
+        addButton = new JButton("Add Task");
+        deleteButton = new JButton("Delete Selected Task");
+
+        // --- 3. Setup Input/Button Panel (North) ---
+        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        inputPanel.add(taskInputField);
+        inputPanel.add(addButton);
+        inputPanel.add(deleteButton);
+
+        // --- 4. Add Components to JFrame ---
+        add(inputPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // --- 5. Add Action Listeners ---
+        
+        // Action for the 'Add Task' button
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addTask();
+            }
+        });
+        
+        // Action for the 'Delete Selected Task' button
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteTask();
+            }
+        });
+
+        // Set the frame visible
+        setVisible(true);
+    }
+
+    /**
+     * Handles adding a new task to the listModel.
+     */
+    private void addTask() {
+        String task = taskInputField.getText().trim();
+        
+        if (!task.isEmpty()) {
+            listModel.addElement(task);
+            taskInputField.setText(""); // Clear the input field
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Task description cannot be empty.", 
+                "Input Error", 
+                JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    /**
+     * Handles deleting the currently selected task from the listModel.
+     */
+    private void deleteTask() {
+        int selectedIndex = todoList.getSelectedIndex();
+        
+        if (selectedIndex != -1) {
+            // Remove the item from the model
+            listModel.remove(selectedIndex);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Please select a task to delete.", 
+                "Selection Error", 
+                JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    // --- MAIN METHOD ---
+    public static void main(String[] args) {
+        // Run the GUI creation on the Event Dispatch Thread (EDT)
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new TodoAppGUI();
+            }
+        });
+    }
+}
